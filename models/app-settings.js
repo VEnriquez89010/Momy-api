@@ -1,0 +1,22 @@
+module.exports = {
+    CRYPTO_ALGORITHM_SHA256: 'sha256',
+    CRYPTO_ALGORITHM_AES: 'aes-256-cbc',
+    CRYPTO_IV: '4e9cee27c6663815',
+    CRYPTO_ENCODING_UTF8: 'utf8',
+    CRYPTO_ENCODING_HEX: 'hex',
+    CRYPTO_SECRET_SHA256 : '1392542397501e1158418adae09d694ffb8ed833a3a5e8a017e15ba565d28c70',
+    CRYPTO_SECRET_AES: 'b71c7190e1b709d774bc0742c991c3fb',
+    FB_REDIRECT_URL : 'http://localhost:4000/fb/facebook_redirect',
+    FB_OAUTH_URL : 'https://www.facebook.com/v2.10/dialog/oauth?client_id=',
+    FB_CLIENT_ID : '2657005754381081',
+    FB_CLIENT_SECRET : '05907cdb66f074abf37b111200562d6e',
+    FB_ME_FIELDS : '/me?fields=id,name,email,picture&access_token=',
+    FB_HOST : 'graph.facebook.com',
+    CLIENT_IP: 'http://localhost:3000',
+    SERVER_IP: 'http://localhost:4000',
+    MONGO_CONNECTION_STRING: 'mongodb://localhost:27017/momy',
+    MAIL_FROM : 'mail@momy.com',
+    MAIL_PASSWORD : 'bdf0d9846f30c36101defbf33d2d0490',
+    MAIL_SUBJECT: 'Recuperar contraseña de ',
+    ADMIN_ROLE: '1e8438eb82cee52758b2dcbbf620ed9a' //--- Admin
+};
