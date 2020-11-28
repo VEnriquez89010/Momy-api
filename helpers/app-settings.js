@@ -16,7 +16,7 @@ module.exports = {
     SERVER_IP: 'http://178.128.3.59:8080',
     MONGO_CONNECTION_STRING: 'mongodb://localhost:27017/Momy',
     MAIL_FROM : 'momy.ext@gmail.com',
-    MAIL_PASSWORD : 'Chivas123*',
+    MAIL_PASSWORD : 'fcd02535dbd2935505c56c557f4d4aa3',
     MAIL_SUBJECT: 'Recuperar contraseña de ',
     ADMIN_ROLE: '1e8438eb82cee52758b2dcbbf620ed9a' //--- Admin
 };
