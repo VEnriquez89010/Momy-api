@@ -1,4 +1,4 @@
-var appSettings  = require('../models/app-settings');
+var appSettings  = require('../helpers/app-settings');
 const Crypt = require('../helpers/crypt');
 
 module.exports.template = (user) => {

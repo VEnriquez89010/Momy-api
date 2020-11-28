@@ -2,7 +2,7 @@ var express = require ('express');
 var router = express.Router();
 var rest  = require('../helpers/rest');
 const Crypt = require('../helpers/crypt');
-var appSettings  = require('../models/app-settings');
+var appSettings  = require('../helpers/app-settings');
 require("../models/user");
 const mongoose = require('mongoose');
 const User = mongoose.model('User');

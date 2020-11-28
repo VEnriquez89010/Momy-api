@@ -1,5 +1,5 @@
 var crypto = require ('crypto');
-var appSettings  = require('../models/app-settings');
+var appSettings  = require('./app-settings');
 
 module.exports.encryptSHA = (pass) => {
     var hash = crypto.createHmac(appSettings.CRYPTO_ALGORITHM_SHA256, appSettings.CRYPTO_SECRET_SHA256).update(pass).digest(appSettings.CRYPTO_ENCODING_HEX);

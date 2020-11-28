@@ -6,7 +6,7 @@ const Crypt = require('../helpers/crypt');
 require("../models/user");
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
-var appSettings  = require('../models/app-settings');
+var appSettings  = require('../helpers/app-settings');
 var router = express.Router();
 
 const CLIENT_ID = googleSettings.CLIENT_ID;

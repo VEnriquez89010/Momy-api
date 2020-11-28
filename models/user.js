@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var appSettings  = require('../models/app-settings');
+var appSettings  = require('../helpers/app-settings');
 mongoose.connect(appSettings.MONGO_CONNECTION_STRING,  {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.Promise = global.Promise;
 

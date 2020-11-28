@@ -6,13 +6,14 @@ const Crypt = require('../helpers/crypt');
 const User = mongoose.model('User');
 var hbsmailer = require("../helpers/mailer");
 var emailUtil = require('../views/email');
-var appSettings = require('../models/app-settings');
+var appSettings = require('../helpers/app-settings');
+const middleware = require('../helpers/middleware');
 
 router.get('/', (req, res) => {
     res.send('Users');
 });
 
-router.get('/id/:Id', (req, res) => {
+router.get('/id/:Id', middleware, (req, res) => {
     var id =  Crypt.decryptAES(req.params.Id);
 
     User.findOne({ _id: id }).then(result => {
@@ -22,7 +23,18 @@ router.get('/id/:Id', (req, res) => {
     }, err => res.send(err.message));
 });
 
-router.get('/all', (req, res) => {
+router.get('/external-login/:Id', (req, res) => {
+    var id =  Crypt.decryptAES(req.params.Id);
+
+    User.findOne({ _id: id }).then(result => {
+        let user = result.toJSON()
+        user.Id = Crypt.encryptAES(result._id);
+        const token = jwt.sign({ check:  true }, appSettings.CRYPTO_SECRET_SHA256, { expiresIn: "7d" });       
+        res.send({user: user, token: token});
+    }, err => res.send(err.message));
+});
+
+router.get('/all', middleware, (req, res) => {
     User.find().then(result => {
         res.send(result);
     }, err => res.send(err.message));
@@ -73,7 +85,7 @@ router.post('/add', (req, res) => {
     }
 });
 
-router.delete('/:Id', (req, res) => {
+router.delete('/:Id', middleware, (req, res) => {
     var id = Crypt.decryptAES(req.params.Id);
     User.deleteOne({ _id: id }).then(user => {
         var out = (user) ? 'Deleted ' : 'Error';
@@ -83,6 +95,7 @@ router.delete('/:Id', (req, res) => {
 
 router.post('/password-recover', function(req, res, next) {
     const email = req.body.Email;
+
     if(email){
         User.findOne({ Email: email }).then(user => {
             if (user){

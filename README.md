@@ -11,7 +11,7 @@ Momy Backend API
 
 
 2. Clone project
-  * git clone https://gitlab.com/VEnriquez89010/momy-api.git
+  * git clone https://github.com/VEnriquez89010/Momy-api.git
 
 
 
