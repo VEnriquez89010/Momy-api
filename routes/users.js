@@ -74,6 +74,8 @@ router.post('/add', (req, res) => {
         Password: Crypt.encryptSHA(req.body.Password)
     }
 
+    console.log(newUser);
+
     if(newUser.Email){
         User.create(newUser).then(result => {
             let user= result.toJSON();
