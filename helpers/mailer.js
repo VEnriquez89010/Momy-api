@@ -1,7 +1,7 @@
 var nodemailer = require('nodemailer');
 const Crypt = require('../helpers/crypt');
 var appSettings = require('./app-settings');
-var password = Crypt.decryptAES(appSettings.MAIL_PASSWORD);
+var password = ""//Crypt.decryptAES(appSettings.MAIL_PASSWORD);
 
 var gmail = nodemailer.createTransport({
     service: 'gmail',

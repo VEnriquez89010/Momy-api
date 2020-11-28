@@ -4,8 +4,8 @@ require("../models/user");
 const mongoose = require('mongoose');
 const Crypt = require('../helpers/crypt');
 const User = mongoose.model('User');
-var hbsmailer = require("../helpers/mailer");
-var emailUtil = require('../views/email');
+/* var hbsmailer = require("../helpers/mailer");
+var emailUtil = require('../views/email'); */
 var appSettings = require('../helpers/app-settings');
 const middleware = require('../helpers/middleware');
 
@@ -92,7 +92,7 @@ router.delete('/:Id', middleware, (req, res) => {
         res.send(out);
     }, err => res.send(err.message));
 });
-
+/* 
 router.post('/password-recover', function(req, res, next) {
     const email = req.body.Email;
 
@@ -130,6 +130,6 @@ router.post('/password-recover', function(req, res, next) {
         user.save();
         res.json({message: 'succes'}).status(201);
     }, err => res.send(err.message));
-});
+}); */
 
 module.exports = router;
