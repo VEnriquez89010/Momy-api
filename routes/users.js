@@ -68,19 +68,24 @@ router.put('/', (req, res) => {
 });
 
 router.post('/add', (req, res) => {
+    console.log(req.body);
     let newUser = {
         Email: req.body.Email,
         Name: req.body.Name,
         Password: Crypt.encryptSHA(req.body.Password)
     }
 
-    console.log(newUser);
-
     if(newUser.Email){
-        User.create(newUser).then(result => {
-            let user= result.toJSON();
-            user.id = Crypt.encryptAES(result._id);
-            res.status(200).json({ message: 'OK', user: user});
+        User.findOne({Email: req.body.Email}).then( userFound => {
+            if (userFound) {
+                res.json({Available: false, User: null, Message:  `El correo ${newUser.Email} ya existe` }) 
+            }else{
+            User.create(newUser).then(result => {
+                    let user= result.toJSON();
+                    user.id = Crypt.encryptAES(result._id);
+                    res.json({Available: true, User: user, Message:  `Usuario agregado satisfactoriamente` }) 
+                }, err => res.json(err.message));
+            }
         }, err => res.json(err.message));
     }else{
         res.status(404)

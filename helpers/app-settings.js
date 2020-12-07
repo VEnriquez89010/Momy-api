@@ -14,7 +14,7 @@ module.exports = {
     FB_HOST : 'graph.facebook.com',
     CLIENT_IP: 'http://138.68.238.148:3000',
     SERVER_IP: 'http://138.68.238.148:8080',
-    MONGO_CONNECTION_STRING: 'mongodb://localhost:27017/Momy',
+    MONGO_CONNECTION_STRING: 'mongodb://develop:M0myCuq0nSd3v3l0p4cC0vnT@localhost:27017/Momy',
     MAIL_FROM : 'momy.ext@gmail.com',
     MAIL_PASSWORD : 'fcd02535dbd2935505c56c557f4d4aa3',
     MAIL_SUBJECT: 'Recuperar contraseña de ',
