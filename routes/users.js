@@ -4,16 +4,32 @@ require("../models/user");
 const mongoose = require('mongoose');
 const Crypt = require('../helpers/crypt');
 const User = mongoose.model('User');
-/* var hbsmailer = require("../helpers/mailer");
-var emailUtil = require('../views/email'); */
 var appSettings = require('../helpers/app-settings');
 const middleware = require('../helpers/middleware');
+var jwt = require('jsonwebtoken');
+const multer = require("multer");
+const fs = require('fs');
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+    cb(null, appSettings.INSTRUCTORS_PATH)
+  },
+    filename: function (req, file, cb) {
+    cb(null, file.originalname )
+  }
+})
+
+var upload = multer({ storage: storage }).single('file')
 
 router.get('/', (req, res) => {
     res.send('Users');
 });
 
 router.get('/id/:Id', middleware, (req, res) => {
+    if(!req.params.Id){
+        return;
+    }
+
     var id =  Crypt.decryptAES(req.params.Id);
 
     User.findOne({ _id: id }).then(result => {
@@ -23,47 +39,9 @@ router.get('/id/:Id', middleware, (req, res) => {
     }, err => res.send(err.message));
 });
 
-router.get('/external-login/:Id', (req, res) => {
-    var id =  Crypt.decryptAES(req.params.Id);
-
-    User.findOne({ _id: id }).then(result => {
-        let user = result.toJSON()
-        user.Id = Crypt.encryptAES(result._id);
-        const token = jwt.sign({ check:  true }, appSettings.CRYPTO_SECRET_SHA256, { expiresIn: "7d" });       
-        res.send({user: user, token: token});
-    }, err => res.send(err.message));
-});
-
 router.get('/all', middleware, (req, res) => {
     User.find().then(result => {
         res.send(result);
-    }, err => res.send(err.message));
-});
-
-router.post('/validate-mail', (req, res) => {
-    if(req.body.Email){
-        User.findOne({Email: req.body.Email}).then(result => {
-            (result) ? res.json({Available: false}) : res.json({Available: true});
-        }, err => res.json(err.message));
-    }else{
-        res.status(400);
-    }
-});
-
-router.put('/', (req, res) => {
-    var id = req.params.Id;
-
-    let newUser = {
-        Email: req.body.email,
-        Name: req.body.name,
-        Password: Crypt.encryptSHA(req.body.password),
-        Image: req.body.image,
-        Phone: Number.parseInt(req.body.phone)
-    }
-
-    User.updateOne({ _id: id }, { $set: newUser }).then(user => {
-        var out = (user) ? 'User Updated' : 'Failed';
-        res.send(out);
     }, err => res.send(err.message));
 });
 
@@ -82,7 +60,8 @@ router.post('/add', (req, res) => {
                 User.create(newUser).then(result => {
                     let user= result.toJSON();
                     user.id = Crypt.encryptAES(result._id);
-                    res.json({Available: true, User: user, Message:  `Usuario agregado satisfactoriamente` }) 
+                    const token = jwt.sign({ check:  true }, appSettings.CRYPTO_SECRET_SHA256, { expiresIn: "7d" });
+                    res.json({Available: true, User: user, Message:  `Usuario agregado satisfactoriamente`, Token: token }) 
                 }, err => res.json(err.message));
             }
         }, err => res.json(err.message));
@@ -91,51 +70,97 @@ router.post('/add', (req, res) => {
     }
 });
 
+// CRUD //
+// Add
+router.put('/', (req, res) => {
+    upload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            return res.status(500).json(err)
+        } else if (err) {
+            return res.status(500).json(err)
+        }
+
+        let user = JSON.parse(req.body.user);
+
+        let newUser = {
+            Email: user.Email,
+            Name: user.Name,
+            Password: Crypt.encryptSHA(user.Password),
+            ImagePath: (req.file) ? `${appSettings.SERVER_IP}/usersPictures/${req.file.filename}`: ''
+        }
+    
+        if(user.Email != null){
+            User.findOne({Email: req.body.Email}).then( userFound => {
+                if (userFound != null) {
+                    res.json({Available: false, User: null, Message:  `El correo ${req.body.Email} ya existe` }) 
+                }else{
+                    User.create(newUser).then( userResult => {
+                        let result= userResult.toJSON();
+                        result.id = Crypt.encryptAES(result._id);
+                        const token = jwt.sign({ check:  true }, appSettings.CRYPTO_SECRET_SHA256, { expiresIn: "7d" });
+                        res.json({Available: true, User: result, Message:  `Usuario agregado satisfactoriamente`, Token: token }) 
+                    }, err => res.json(err.message));
+                }
+            }, err => res.json(err.message));
+        }else{
+            res.status(404)
+        }
+    });
+});
+
+// Edit
+router.put('/:Id', middleware, (req, res) => {
+    var id = Crypt.decryptAES(req.params.Id);
+    User.findOne({ _id: mongoose.Types.ObjectId(id) }).then( result => {
+        if(result){
+            upload(req, res, function (err) {
+                if (err instanceof multer.MulterError) {
+                    return res.status(500).json(err)
+                } else if (err) {
+                    return res.status(500).json(err)
+                }
+                
+                if(req.file && result.ImagePath){
+                    let imageName = result.ImagePath.split('/').pop();
+                    if(req.file.filename != imageName){
+                        fs.unlink(`${appSettings.IMAGE_PATH}${imageName}`, err => (!err) ? console.log(`Image deleted: ${imageName}`) : console.log(err));
+                    }
+                }
+                let user = JSON.parse(req.body.user);
+                
+                let newUser = {
+                    Email: user.Email,
+                    Name: user.Name,
+                    Password: Crypt.encryptSHA(user.Password),
+                    ImagePath: (req.file) ? `${appSettings.SERVER_IP}/usersPictures/${req.file.filename}`: ''
+                }
+        
+                User.updateOne({ _id: mongoose.Types.ObjectId(id)}, { $set: newUser }).then(result => res.json(result).status(200), err => res.json(err.message));
+            });
+        }else{
+            res.send('No encontrado').status(404)
+        }
+    });
+});
+
+// Delete
 router.delete('/:Id', middleware, (req, res) => {
     var id = Crypt.decryptAES(req.params.Id);
-    User.deleteOne({ _id: id }).then(user => {
-        var out = (user) ? 'Deleted ' : 'Error';
-        res.send(out);
-    }, err => res.send(err.message));
-});
-/* 
-router.post('/password-recover', function(req, res, next) {
-    const email = req.body.Email;
-
-    if(email){
-        User.findOne({ Email: email }).then(user => {
-            if (user){
-                hbsmailer.sendMail({
-                from: appSettings.MAIL_FROM,
-                to: user.Email,
-                subject: `${appSettings.MAIL_SUBJECT} ${user.Name}`,
-                html: emailUtil.template(user)
-              }, function (error, response) {
-                console.log(error);
-                console.log(response);
-                console.log('mail sent to: ' + email);
-                hbsmailer.close();
-                res.json( { message: `Enviado: ${email}`, status: 200});
-              });
-            }else{
-                console.log(`No se encontro usuario con email: ${email}`)
-                res.json( { message:`No se encontro usuario con email: ${email}`, status: 404});
+    User.findOne({ _id: mongoose.Types.ObjectId(id) }).then( result => {
+        if(result){
+            if(result.ImagePath){
+                let imageName = result.ImagePath.split('/').pop();
+                fs.unlink(`${appSettings.IMAGE_PATH}${imageName}`, err => (!err) ? console.log(`Image deleted: ${imageName}`) : console.log(err));
             }
-        }, err => res.send(err.message));
-    }else{
-        res.json( { message:`Introduzca un email`, status: 404});
-    }
-  });
+            
+            User.deleteOne({ _id: mongoose.Types.ObjectId(id) }).then( user => {
+                res.send(user).status(200), err => res.send(err.message).status(400);
+            });
+        }else{
+            res.status(404);
+        }
+    });
+});
 
-  router.post('/restore-password', (req, res) => {
-    const id = Crypt.decryptAES(req.body.Id);
-    const pass = req.body.Password;
-
-    User.findOne({ _id: id }).then(user => {
-        user.Password = Crypt.encryptSHA(pass);
-        user.save();
-        res.json({message: 'succes'}).status(201);
-    }, err => res.send(err.message));
-}); */
 
 module.exports = router;

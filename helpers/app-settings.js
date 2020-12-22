@@ -1,4 +1,5 @@
 module.exports = {
+    IMAGE_PATH: 'public/usersPictures/',
     CRYPTO_ALGORITHM_SHA256: 'sha256',
     CRYPTO_ALGORITHM_AES: 'aes-256-cbc',
     CRYPTO_IV: '4e9cee27c6663815',

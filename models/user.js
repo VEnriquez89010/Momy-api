@@ -12,7 +12,8 @@ let User = new Schema({
     Name: { type: String, required: true },
     Password: { type: String, required: true },
     Created: { type: Date, default: Date.now },
-    IsActive: { type: Boolean, default: 1 }
+    IsActive: { type: Boolean, default: 1 },
+    ImagePath: { type: String }
 });
 
 module.exports = mongoose.model('User', User);
