@@ -109,7 +109,7 @@ router.put('/', (req, res) => {
 });
 
 // Edit
-router.put('/:Id', middleware, (req, res) => {
+router.put('/:Id', (req, res) => {
     var id = Crypt.decryptAES(req.params.Id);
     User.findOne({ _id: mongoose.Types.ObjectId(id) }).then( result => {
         if(result){
