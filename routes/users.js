@@ -122,7 +122,7 @@ router.put('/:Id', (req, res) => {
                 
                 if(req.file && result.ImagePath){
                     let imageName = result.ImagePath.split('/').pop();
-                    if(req.file.filename != imageName){
+                    if(req.file.name != imageName){
                         fs.unlink(`${appSettings.IMAGE_PATH}${imageName}`, err => (!err) ? console.log(`Image deleted: ${imageName}`) : console.log(err));
                     }
                 }
@@ -132,7 +132,7 @@ router.put('/:Id', (req, res) => {
                     Email: user.Email,
                     Name: user.Name,
                     Password: Crypt.encryptSHA(user.Password),
-                    ImagePath: (req.file) ? `${appSettings.SERVER_IP}/usersPictures/${req.file.filename}`: ''
+                    ImagePath: (req.file) ? `${appSettings.SERVER_IP}/usersPictures/${req.file.name}`: ''
                 }
         
                 User.updateOne({ _id: mongoose.Types.ObjectId(id)}, { $set: newUser }).then(result => res.json(result).status(200), err => res.json(err.message));
